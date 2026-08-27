@@ -13,6 +13,11 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   agentRules: false,
   poweredByHeader: false,
+  outputFileTracingIncludes: {
+    "/pass/[publicAccessToken]/download": [
+      "./src/assets/fonts/Manrope-Variable.ttf",
+    ],
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "6mb",

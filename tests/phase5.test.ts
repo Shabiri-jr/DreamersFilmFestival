@@ -133,3 +133,27 @@ test("downloaded ticket PNG is phone-readable and its QR decodes to the validati
   const decoded = jsQR(new Uint8ClampedArray(data), info.width, info.height);
   assert.equal(decoded?.data, fixturePass.qrValidationUrl);
 });
+
+test("downloaded ticket PNG renders real holder-name glyphs instead of fallback boxes", async () => {
+  const alternatePass = {
+    ...fixturePass,
+    holderName: "Olawale Moses",
+  };
+  assert.equal(alternatePass.holderName.length, fixturePass.holderName.length);
+
+  const [firstPng, secondPng] = await Promise.all([
+    renderPassPng(fixturePass),
+    renderPassPng(alternatePass),
+  ]);
+  const holderRegion = { left: 112, top: 1640, width: 450, height: 64 };
+  const [firstHolder, secondHolder] = await Promise.all([
+    sharp(firstPng).extract(holderRegion).raw().toBuffer(),
+    sharp(secondPng).extract(holderRegion).raw().toBuffer(),
+  ]);
+
+  assert.notDeepEqual(
+    firstHolder,
+    secondHolder,
+    "different same-length names must not collapse to identical missing-glyph boxes",
+  );
+});
