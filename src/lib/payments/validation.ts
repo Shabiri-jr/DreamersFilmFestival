@@ -22,7 +22,7 @@ export type ValidPaymentInput = Readonly<{
   senderName: string;
   senderBank: string;
   amountPaid: number;
-  paymentReference: string;
+  paymentReference: string | null;
   paymentDate: string;
   paymentTime: string | null;
   idempotencyKey: string;
@@ -85,9 +85,10 @@ export function validatePaymentForm(
   const errors: PaymentFieldErrors = {};
   const senderName = normalizeWords(readText(formData, "senderName"));
   const senderBank = normalizeWords(readText(formData, "senderBank"));
-  const paymentReference = normalizeWords(
+  const paymentReferenceValue = normalizeWords(
     readText(formData, "paymentReference"),
   );
+  const paymentReference = paymentReferenceValue || null;
   const paymentDate = readText(formData, "paymentDate");
   const paymentTimeValue = readText(formData, "paymentTime");
   const paymentTime = paymentTimeValue || null;
@@ -110,11 +111,12 @@ export function validatePaymentForm(
     errors.amountPaid = "Enter the whole Naira amount you transferred.";
   }
   if (
-    paymentReference.length < 3 ||
-    paymentReference.length > 120 ||
-    paymentReference.replace(/[^a-z0-9]/gi, "").length < 3
+    paymentReference &&
+    (paymentReference.length < 3 ||
+      paymentReference.length > 120 ||
+      paymentReference.replace(/[^a-z0-9]/gi, "").length < 3)
   ) {
-    errors.paymentReference = "Enter your transfer reference before continuing.";
+    errors.paymentReference = "Enter a valid transfer reference or leave it blank.";
   }
   if (
     !isCalendarDate(paymentDate) ||
@@ -226,4 +228,3 @@ export async function validateReceiptFile(
     data: { bytes, extension: typedExtension, contentType },
   };
 }
-

@@ -48,8 +48,8 @@ type SubmissionDetail = Readonly<{
   amountPaid: number;
   expectedAmount: number;
   amountMismatch: boolean;
-  paymentReference: string;
-  normalizedReference: string;
+  paymentReference: string | null;
+  normalizedReference: string | null;
   potentialDuplicate: boolean;
   paymentDate: string;
   paymentTime: string | null;
@@ -217,8 +217,8 @@ function mapSubmission(submission: {
   amount_paid: number;
   expected_amount_snapshot: number;
   amount_mismatch: boolean;
-  payment_reference: string;
-  normalized_reference: string;
+  payment_reference: string | null;
+  normalized_reference: string | null;
   potential_duplicate: boolean;
   payment_date: string;
   payment_time: string | null;
@@ -272,7 +272,7 @@ export async function getAdminOrderReview(orderNumber: string): Promise<AdminOrd
   const submissions = (submissionResult.data ?? []).map(mapSubmission);
   const currentSubmission = submissions[0] ?? null;
   let duplicateOrderNumbers: string[] = [];
-  if (currentSubmission?.potentialDuplicate) {
+  if (currentSubmission?.potentialDuplicate && currentSubmission.normalizedReference) {
     const { data: matches } = await supabase
       .from("payment_submissions")
       .select("order_id")

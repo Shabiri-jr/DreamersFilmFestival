@@ -72,8 +72,8 @@ type PaymentSubmissionRow = Timestamped & {
   amount_paid: number;
   expected_amount_snapshot: number;
   amount_mismatch: boolean;
-  payment_reference: string;
-  normalized_reference: string;
+  payment_reference: string | null;
+  normalized_reference: string | null;
   potential_duplicate: boolean;
   payment_date: string;
   payment_time: string | null;
@@ -308,8 +308,8 @@ export interface Database {
           amount_paid: number;
           expected_amount_snapshot: number;
           amount_mismatch: boolean;
-          payment_reference: string;
-          normalized_reference: string;
+          payment_reference?: string | null;
+          normalized_reference?: string | null;
           potential_duplicate?: boolean;
           payment_date: string;
           payment_time?: string | null;
@@ -539,7 +539,7 @@ export interface Database {
           p_sender_name: string;
           p_sender_bank: string;
           p_amount_paid: number;
-          p_payment_reference: string;
+          p_payment_reference: string | null;
           p_payment_date: string;
           p_payment_time: string | null;
           p_receipt_path: string;

@@ -57,6 +57,14 @@ test("underpayment and overpayment remain valid evidence inputs", () => {
   }
 });
 
+test("payment reference is optional and blank input is stored as null", () => {
+  for (const paymentReference of ["", "   "]) {
+    const result = validatePaymentForm(validForm({ paymentReference }), now);
+    assert.equal(result.success, true);
+    if (result.success) assert.equal(result.data.paymentReference, null);
+  }
+});
+
 test("missing receipt is blocked", () => {
   const formData = validForm();
   formData.delete("receipt");
@@ -81,7 +89,7 @@ test("Lagos calendar date is used around UTC midnight", () => {
   );
 });
 
-test("invalid whole-Naira amounts and malformed references are blocked", () => {
+test("invalid whole-Naira amounts and malformed nonblank references are blocked", () => {
   for (const amount of ["0", "-1", "3000.5", "not-money"]) {
     const result = validatePaymentForm(validForm({ amountPaid: amount }), now);
     assert.equal(result.success, false);
@@ -92,6 +100,9 @@ test("invalid whole-Naira amounts and malformed references are blocked", () => {
     now,
   );
   assert.equal(referenceResult.success, false);
+  if (!referenceResult.success) {
+    assert.match(referenceResult.errors.paymentReference ?? "", /valid|blank/i);
+  }
 });
 
 test("valid PNG receipt passes extension, MIME, and magic-byte checks", async () => {
@@ -169,4 +180,3 @@ test("path-like original filename is never returned as storage identity", async 
     assert.equal(result.data.extension, "jpg");
   }
 });
-

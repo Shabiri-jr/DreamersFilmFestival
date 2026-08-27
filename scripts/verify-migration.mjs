@@ -35,6 +35,8 @@ const phase5GrantMigration =
   migrations.find(({ name }) => name.includes("phase_5_ticket_grant_hardening"))?.sql ?? "";
 const phase6Migration =
   migrations.find(({ name }) => name.includes("phase_6_event_check_in"))?.sql ?? "";
+const optionalReferenceMigration =
+  migrations.find(({ name }) => name.includes("optional_payment_reference"))?.sql ?? "";
 const ticketColumnGrants = [...migration.matchAll(
   /grant select\s*\(([\s\S]*?)\)\s*on table public\.tickets to authenticated;/gi,
 )].map((match) => match[1] ?? "");
@@ -378,6 +380,18 @@ const assertions = [
       /potential_duplicate boolean not null/i.test(phase3Migration) &&
       /where normalized_reference = normalized_reference_value/i.test(
         phase3Migration,
+      ),
+  },
+  {
+    name: "allows an omitted payment reference without weakening supplied-reference checks",
+    passes:
+      /alter column payment_reference drop not null/i.test(optionalReferenceMigration) &&
+      /alter column normalized_reference drop not null/i.test(optionalReferenceMigration) &&
+      /payment_submissions_reference_pair_check/i.test(optionalReferenceMigration) &&
+      /trimmed_reference text := nullif\(btrim\(p_payment_reference\), ''\)/i.test(optionalReferenceMigration) &&
+      /if trimmed_reference is not null and/i.test(optionalReferenceMigration) &&
+      /if normalized_reference_value is not null then[\s\S]*?where normalized_reference = normalized_reference_value/i.test(
+        optionalReferenceMigration,
       ),
   },
   {

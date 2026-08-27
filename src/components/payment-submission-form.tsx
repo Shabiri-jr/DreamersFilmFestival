@@ -192,6 +192,7 @@ export function PaymentSubmissionForm({
             />
             <FormField
               label="Transaction / transfer reference"
+              optional
               name="paymentReference"
               placeholder="Enter the reference from your receipt"
               maxLength={120}

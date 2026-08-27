@@ -179,7 +179,7 @@ export default async function OrderStatusPage({
           )}
 
           <p className="mx-auto mt-6 max-w-2xl text-center text-xs leading-6 text-[#17120f]/52">
-            Your receipt and transfer reference remain private. Ticket credentials are created only for verified orders.
+            Your receipt and payment details remain private. Ticket credentials are created only for verified orders.
           </p>
         </div>
       </main>
