@@ -37,6 +37,8 @@ const phase6Migration =
   migrations.find(({ name }) => name.includes("phase_6_event_check_in"))?.sql ?? "";
 const optionalReferenceMigration =
   migrations.find(({ name }) => name.includes("optional_payment_reference"))?.sql ?? "";
+const ticketBenefitsMigration =
+  migrations.find(({ name }) => name.includes("ticket_benefits_update"))?.sql ?? "";
 const ticketColumnGrants = [...migration.matchAll(
   /grant select\s*\(([\s\S]*?)\)\s*on table public\.tickets to authenticated;/gi,
 )].map((match) => match[1] ?? "");
@@ -116,6 +118,30 @@ const assertions = [
         "i",
       ).test(seed),
     ),
+  },
+  {
+    name: "stores buyer-facing copy and structured perks for all five ticket types",
+    passes:
+      ["dreamer", "d-shift", "network", "solo", "afatakpa"].every((slug) =>
+        new RegExp(`where slug = '${slug}'`, "i").test(ticketBenefitsMigration),
+      ) &&
+      (ticketBenefitsMigration.match(/benefits\s*=\s*'\[/gi)?.length ?? 0) === 5 &&
+      /Dreamers Youth Network registration/i.test(ticketBenefitsMigration) &&
+      /Priority access to selected products, services, opportunities \+ future activities/i.test(
+        ticketBenefitsMigration,
+      ) &&
+      /Popcorn/i.test(ticketBenefitsMigration) &&
+      /Admission for 5 people on one pass/i.test(ticketBenefitsMigration) &&
+      /Exclusive Dreamers merchandise/i.test(ticketBenefitsMigration) &&
+      /Premium VVIP treatment/i.test(ticketBenefitsMigration),
+  },
+  {
+    name: "ticket benefits migration does not change price, commission, or admission rules",
+    passes:
+      ticketBenefitsMigration.length > 0 &&
+      !/(price|commission_amount|admissions_per_unit|quantity_available|maximum_per_order|is_active)\s*=/i.test(
+        ticketBenefitsMigration,
+      ),
   },
   {
     name: "normalizes unique promoter codes and rejects inactive attribution",

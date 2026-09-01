@@ -48,3 +48,18 @@ export function formatAdmissions(admissionsPerUnit: number): string {
 
   return `Admits ${admissionsPerUnit}`;
 }
+
+export function formatPassAdmission(
+  slug: string,
+  admissionsPerUnit: number,
+): string {
+  if (slug === "network" && admissionsPerUnit === 5) {
+    return "Group of 5 · one pass";
+  }
+
+  if (slug === "afatakpa" && admissionsPerUnit === 2) {
+    return "Admits two · couple";
+  }
+
+  return formatAdmissions(admissionsPerUnit);
+}

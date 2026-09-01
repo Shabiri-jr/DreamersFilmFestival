@@ -6,6 +6,7 @@ import {
   formatFestivalDate,
   formatFestivalTime,
   formatNaira,
+  formatPassAdmission,
 } from "@/lib/format";
 import {
   createOrderAccessToken,
@@ -94,6 +95,9 @@ test("festival values format for Nigerian customers and admission units", () => 
   assert.equal(formatAdmissions(1), "Admits one");
   assert.equal(formatAdmissions(2), "Admits two");
   assert.equal(formatAdmissions(5), "Admits 5");
+  assert.equal(formatPassAdmission("network", 5), "Group of 5 · one pass");
+  assert.equal(formatPassAdmission("afatakpa", 2), "Admits two · couple");
+  assert.equal(formatPassAdmission("solo", 1), "Admits one");
 });
 
 test("payment summaries require a matching, unexpired signed order token", () => {
@@ -140,4 +144,3 @@ test("tampering invalidates payment access tokens", () => {
     false,
   );
 });
-

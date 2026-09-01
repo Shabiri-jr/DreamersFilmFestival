@@ -32,7 +32,7 @@ const faqItems = [
   {
     question: "Does one Network pass admit five people?",
     answer:
-      "Yes. One Network ticket product admits a group of five. Every attendee will receive an independent entry credential after payment verification.",
+      "Yes. One Network Pass is one group credential with one QR that admits five people together.",
   },
   {
     question: "Can I buy more than one ticket?",

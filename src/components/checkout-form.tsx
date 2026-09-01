@@ -7,7 +7,7 @@ import {
   createCustomerOrderAction,
 } from "@/lib/orders/actions";
 import type { CheckoutActionState } from "@/lib/orders/actions";
-import { formatAdmissions, formatNaira } from "@/lib/format";
+import { formatNaira, formatPassAdmission } from "@/lib/format";
 import type { CustomerTicketType } from "@/types/domain";
 import {
   ReferralCodeForm,
@@ -143,7 +143,7 @@ export function CheckoutForm({
                 <div>
                   <p className="font-extrabold">{ticket.name}</p>
                   <p className="mt-1 text-xs text-[#17120f]/52">
-                    {formatAdmissions(ticket.admissionsPerUnit)} per unit
+                    {formatPassAdmission(ticket.slug, ticket.admissionsPerUnit)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -205,10 +205,13 @@ export function CheckoutForm({
                 {ticket.name}
               </p>
               <p className="mt-1 text-sm text-[#f3ead8]/58">
-                {formatAdmissions(ticket.admissionsPerUnit)}
+                {formatPassAdmission(ticket.slug, ticket.admissionsPerUnit)}
+              </p>
+              <p className="mt-3 max-w-[28rem] text-sm leading-6 text-[#f3ead8]/72">
+                {ticket.description}
               </p>
             </div>
-            <p className="font-bold tabular-nums">× {quantity}</p>
+            <p className="shrink-0 font-bold tabular-nums whitespace-nowrap">× {quantity}</p>
           </div>
           <dl className="mt-5 space-y-3 text-sm">
             <div className="flex justify-between gap-4 text-[#f3ead8]/62">

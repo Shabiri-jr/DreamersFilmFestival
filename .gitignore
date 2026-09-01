@@ -24,6 +24,8 @@ pnpm-debug.log*
 /playwright-report/
 /test-results/
 /.playwright-mcp/
+/.playwright-cli/
+/output/playwright/
 /coverage/
 
 # Supabase CLI machine-local link and version metadata
