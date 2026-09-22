@@ -1,5 +1,6 @@
-import { DownloadSimple, WhatsappLogo } from "@phosphor-icons/react/ssr";
+import { DownloadSimple, MapPin, ArrowUpRight, WhatsappLogo } from "@phosphor-icons/react/ssr";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { DigitalPassCard } from "@/components/digital-pass";
@@ -66,6 +67,11 @@ export default async function PublicPassPage({
         <p className="mx-auto mt-4 max-w-[34rem] text-center text-xs leading-5 text-[#fff7e7]/46">
           WhatsApp opens with a prepared message and secure link. Downloaded images must be attached separately.
         </p>
+        <Link href="/venue" className="mx-auto mt-7 flex min-h-14 max-w-[34rem] items-center gap-3 rounded-2xl border border-[#fff7e7]/20 px-5 py-4 text-sm font-extrabold transition-colors hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#eaa42c]">
+          <MapPin size={22} weight="bold" className="text-[#eaa42c]" />
+          Find your way to the festival
+          <ArrowUpRight size={19} weight="bold" className="ml-auto shrink-0" />
+        </Link>
       </div>
     </main>
   );

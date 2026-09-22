@@ -52,6 +52,18 @@ Copy `.env.example` to `.env.local` and replace the examples:
 
 Never add the service-role value to a `NEXT_PUBLIC_*` variable. `.env*` files are ignored except `.env.example`.
 
+## Venue map
+
+The homepage event section and `/venue` display an on-demand MapLibre map. Digital passes link to the public venue page, so ticket credentials are not sent to map or routing services. The default destination is **7.370485, 3.83631**, taken from the organiser's [Google Maps pin](https://maps.app.goo.gl/gixcm7FrkKnnE7wS6). Optional `VENUE_LATITUDE` and `VENUE_LONGITUDE` environment variables override it together; invalid or incomplete overrides show an area overview without a destination.
+
+The map uses [OpenFreeMap](https://openfreemap.org/) vector tiles, with a festival-colour version of its Liberty style in `public/maps/dreamers.json`. Building geometry and heights depend on available OpenStreetMap data. Map attribution stays visible. No paid map token is required.
+
+`npm run dev` and `npm run build` prepare the matching MapLibre worker and shared module under the ignored `public/maps/maplibre/<version>/` folder. These local worker assets are required by MapLibre 6 with Next.js/Turbopack. Run `node scripts/prepare-map-assets.mjs` first if invoking `next` directly.
+
+Location access starts only after pressing **Use my location**, requires HTTPS (or localhost), stops on request/unmount, and pauses when the page is hidden. Coordinates are held in browser memory and sent directly to the [FOSSGIS routing service](https://routing.openstreetmap.de/about.html) for a driving route; the app does not store them. A route refresh occurs at most every 30 seconds, after at least 40 metres of movement, and is skipped for GPS accuracy worse than 100 metres. Driving estimates exclude live traffic. Google Maps is available for spoken navigation and as a fallback when WebGL, GPS, or routing fails.
+
+FOSSGIS is a shared community routing service with a [usage policy](https://routing.openstreetmap.de/about.html), including a maximum of one request per second and no heavy use. Before scaling beyond a small event, replace it with a provisioned routing service. The map's `Permissions-Policy` allows geolocation only for this origin.
+
 ## Supabase Setup
 
 For a local Supabase stack:

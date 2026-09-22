@@ -9,6 +9,7 @@ import { FestivalMark } from "@/components/festival-mark";
 const navigation = [
   { label: "Tickets", href: "/tickets" },
   { label: "Event info", href: "/#event" },
+  { label: "Find us", href: "/venue" },
   { label: "FAQ", href: "/#faq" },
 ] as const;
 

@@ -14,8 +14,10 @@ import { redirect } from "next/navigation";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { TicketPreviewCard } from "@/components/ticket-preview-card";
+import { VenueExplorer } from "@/components/venue/venue-explorer";
 import { getActiveTicketTypes, getFestivalSettings } from "@/lib/festival/data";
 import { formatFestivalDate, formatFestivalTime } from "@/lib/format";
+import { getVenueCoordinates } from "@/lib/venue/config";
 
 export const metadata: Metadata = {
   title: "The Dreamers Film Festival",
@@ -83,10 +85,10 @@ export default async function Home({
                 <CalendarBlank size={21} weight="bold" className="text-[#eaa42c]" />
                 {formatFestivalDate(settings.eventDate)} · {formatFestivalTime(settings.eventTime, settings.eventEndTime)}
               </p>
-              <p className="flex min-h-11 items-center gap-3 border-t border-white/14 pt-3">
+              <Link href="/venue" className="flex min-h-11 items-center gap-3 border-t border-white/14 pt-3 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-[#eaa42c]">
                 <MapPin size={21} weight="bold" className="text-[#eaa42c]" />
                 The Dreamers Hub, Ibadan
-              </p>
+              </Link>
             </div>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link href="/tickets" className="primary-cta group">
@@ -186,7 +188,7 @@ export default async function Home({
           </div>
         </section>
 
-        <section id="event" className="bg-[#17120f] px-4 py-20 sm:px-6 md:py-28 lg:px-10">
+        <section id="event" className="scroll-mt-24 bg-[#17120f] px-4 py-20 sm:px-6 md:py-28 lg:px-10">
           <div className="mx-auto grid max-w-[1400px] gap-12 md:grid-cols-[0.8fr_1.2fr]">
             <div>
               <p className="section-eyebrow text-[#eaa42c]">Save the date</p>
@@ -204,6 +206,10 @@ export default async function Home({
                 </div>
               ))}
             </dl>
+          </div>
+          <div className="mx-auto mt-12 max-w-[1400px]">
+            <VenueExplorer venue={settings.venue} destination={getVenueCoordinates()} />
+            <Link href="/venue" className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-extrabold text-[#eaa42c] hover:underline focus-visible:outline-2 focus-visible:outline-[#eaa42c]">Open the venue page <ArrowUpRight size={18} weight="bold" /></Link>
           </div>
         </section>
 

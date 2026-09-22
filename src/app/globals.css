@@ -391,3 +391,22 @@ button:disabled {
     scroll-behavior: auto !important;
   }
 }
+
+.venue-explorer .maplibregl-map { font-family: var(--font-body), sans-serif; }
+.section-title.venue-page-title { max-width: none; font-size: clamp(3.4rem, 6.3vw, 5.5rem); }
+.venue-explorer .venue-map-canvas { position: absolute; inset: 0; }
+.venue-explorer .maplibregl-ctrl-group { overflow: hidden; border: 1px solid rgb(23 18 15 / 12%); border-radius: 0.85rem; background: #fff7e7; box-shadow: 0 4px 15px rgb(23 18 15 / 8%); }
+.venue-explorer .maplibregl-ctrl-group button { width: 44px; height: 44px; }
+.venue-explorer .maplibregl-ctrl-attrib { background: rgb(255 247 231 / 94%); color: #17120f; }
+.venue-explorer .maplibregl-canvas:focus-visible { outline: 3px solid #086544; outline-offset: -3px; }
+.venue-control { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid rgb(23 18 15 / 15%); border-radius: 999px; background: #fff7e7; padding: 0.65rem 1rem; color: #17120f; font-size: 0.75rem; font-weight: 800; box-shadow: 0 4px 16px rgb(23 18 15 / 8%); transition: transform 180ms, background-color 180ms; }
+.venue-control:hover { background: #f3ead8; }
+.venue-control:active { transform: scale(0.97); }
+.venue-control:focus-visible { outline: 2px solid #086544; outline-offset: 3px; }
+.venue-control[aria-pressed="true"] { border-color: #086544; }
+.venue-destination { padding-bottom: 25px; }
+.venue-destination span { display: block; border: 2px solid #fff7e7; border-radius: 0.75rem; background: #e84b16; padding: 0.7rem 1rem; color: #fff7e7; font-size: 0.8rem; font-weight: 800; box-shadow: 0 8px 24px rgb(87 41 15 / 22%); }
+.venue-destination::before { position: absolute; bottom: 8px; left: calc(50% - 1px); width: 2px; height: 19px; background: #e84b16; content: ""; }
+.venue-destination::after { position: absolute; bottom: 0; left: calc(50% - 6px); width: 12px; height: 12px; border: 2px solid #fff7e7; border-radius: 50%; background: #e84b16; box-shadow: 0 0 0 5px rgb(232 75 22 / 16%); content: ""; }
+.venue-user { width: 20px; height: 20px; border: 3px solid #fff7e7; border-radius: 50%; background: #086544; box-shadow: 0 0 0 8px rgb(8 101 68 / 18%), 0 2px 8px rgb(23 18 15 / 20%); }
+.venue-user span { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); border-radius: 6px; background: #086544; padding: 3px 8px; color: #fff7e7; font-size: 11px; font-weight: 800; }
