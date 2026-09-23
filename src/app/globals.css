@@ -404,9 +404,26 @@ button:disabled {
 .venue-control:active { transform: scale(0.97); }
 .venue-control:focus-visible { outline: 2px solid #086544; outline-offset: 3px; }
 .venue-control[aria-pressed="true"] { border-color: #086544; }
-.venue-destination { padding-bottom: 25px; }
+.venue-destination { z-index: 2; padding-bottom: 25px; pointer-events: none; }
 .venue-destination span { display: block; border: 2px solid #fff7e7; border-radius: 0.75rem; background: #e84b16; padding: 0.7rem 1rem; color: #fff7e7; font-size: 0.8rem; font-weight: 800; box-shadow: 0 8px 24px rgb(87 41 15 / 22%); }
 .venue-destination::before { position: absolute; bottom: 8px; left: calc(50% - 1px); width: 2px; height: 19px; background: #e84b16; content: ""; }
 .venue-destination::after { position: absolute; bottom: 0; left: calc(50% - 6px); width: 12px; height: 12px; border: 2px solid #fff7e7; border-radius: 50%; background: #e84b16; box-shadow: 0 0 0 5px rgb(232 75 22 / 16%); content: ""; }
+.venue-destination-overview span, .venue-destination-overview::before { visibility: hidden; }
 .venue-user { width: 20px; height: 20px; border: 3px solid #fff7e7; border-radius: 50%; background: #086544; box-shadow: 0 0 0 8px rgb(8 101 68 / 18%), 0 2px 8px rgb(23 18 15 / 20%); }
 .venue-user span { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); border-radius: 6px; background: #086544; padding: 3px 8px; color: #fff7e7; font-size: 11px; font-weight: 800; }
+.venue-landmark { z-index: 1; width: 44px; height: 50px; padding-bottom: 14px; color: #fff7e7; text-align: center; }
+.venue-landmark-number { display: grid; width: 32px; height: 32px; margin: auto; place-items: center; border: 2px solid #fff7e7; border-radius: 50%; background: #086544; font-size: 0.75rem; font-weight: 800; box-shadow: 0 5px 16px rgb(23 18 15 / 15%); }
+.venue-landmark-label { position: absolute; bottom: 100%; left: 50%; display: none; width: max-content; max-width: 170px; transform: translateX(-50%); overflow-wrap: anywhere; border: 2px solid #fff7e7; border-radius: 0.6rem; background: #086544; padding: 0.5rem 0.75rem; font-size: 0.75rem; font-weight: 800; line-height: 1.4; box-shadow: 0 5px 16px rgb(23 18 15 / 15%); }
+.venue-landmark:is(:hover, :focus-visible) { z-index: 3; }
+.venue-landmark:is(:hover, :focus-visible) .venue-landmark-label { display: block; }
+.venue-landmark::after { position: absolute; bottom: 5px; left: calc(50% - 4px); width: 8px; height: 8px; transform: rotate(45deg); border: 1px solid #fff7e7; border-radius: 2px; background: #086544; content: ""; }
+.venue-landmark:focus-visible { outline: 3px solid #eaa42c; outline-offset: 4px; border-radius: 0.6rem; }
+.venue-landmark-popup { z-index: 4; }
+.venue-landmark-popup .maplibregl-popup-content { border-radius: 0.85rem; background: #fff7e7; padding: 1.25rem; color: #17120f; box-shadow: 0 8px 30px rgb(23 18 15 / 18%); }
+.venue-landmark-popup h4 { overflow-wrap: anywhere; padding-right: 1.2rem; font-size: 0.9rem; font-weight: 800; line-height: 1.5; }
+.venue-landmark-popup p { margin-top: 0.5rem; font-size: 0.8rem; line-height: 1.6; }
+.venue-landmark-popup a { display: inline-flex; min-height: 44px; align-items: center; margin-top: 0.5rem; color: #086544; font-size: 0.75rem; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+.venue-landmark-popup .maplibregl-popup-close-button { width: 44px; height: 44px; border-radius: 0.6rem; font-size: 1.3rem; }
+.venue-landmark-popup :is(a, button):focus-visible { outline: 2px solid #086544; outline-offset: 2px; }
+.venue-landmark-popup.maplibregl-popup-anchor-bottom .maplibregl-popup-tip { border-top-color: #fff7e7; }
+.venue-landmark-popup.maplibregl-popup-anchor-top .maplibregl-popup-tip { border-bottom-color: #fff7e7; }

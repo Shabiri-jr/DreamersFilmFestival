@@ -8,6 +8,7 @@ import { VenueExplorer } from "@/components/venue/venue-explorer";
 import { getFestivalSettings } from "@/lib/festival/data";
 import { formatFestivalDate, formatFestivalTime } from "@/lib/format";
 import { getVenueCoordinates } from "@/lib/venue/config";
+import { getVenueLandmarks } from "@/lib/venue/data";
 
 export const metadata: Metadata = {
   title: "Find the venue",
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function VenuePage() {
-  const settings = await getFestivalSettings();
+  const [settings, { landmarks }] = await Promise.all([getFestivalSettings(), getVenueLandmarks()]);
   return (
     <div className="festival-page bg-[#17120f] text-[#fff7e7]">
       <SiteHeader />
@@ -28,7 +29,7 @@ export default async function VenuePage() {
             <p className="flex items-start gap-3"><MapPin size={21} className="mt-0.5 shrink-0 text-[#eaa42c]" /><span>{settings.venue}</span></p>
           </div>
         </div>
-        <VenueExplorer venue={settings.venue} destination={getVenueCoordinates()} />
+        <VenueExplorer venue={settings.venue} destination={getVenueCoordinates()} landmarks={landmarks} />
       </main>
       <SiteFooter supportWhatsapp={settings.supportWhatsapp} />
     </div>

@@ -2,6 +2,23 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { DREAMERS_HUB_COORDINATES, distanceMetres, googleMapsUrl, parseDrivingRoute, parseVenueCoordinates } from "../src/lib/venue/location";
+import { VENUE_LANDMARKS, parseLandmarkLabel, withLandmarkLabels } from "../src/lib/venue/landmarks";
+
+test("landmark labels accept known pins only and normalize bounded names", () => {
+  assert.deepEqual(parseLandmarkLabel("landmark-4", "  Main   junction  "), { landmark_id: "landmark-4", label: "Main junction" });
+  for (const [id, label] of [["unknown", "Main junction"], [null, "Name"], ["landmark-4", null], ["landmark-4", "   "], ["landmark-4", "x"], ["landmark-4", "x".repeat(81)]]) {
+    assert.equal(parseLandmarkLabel(id, label), null);
+  }
+});
+
+test("saved labels change names without moving or duplicating landmarks", () => {
+  const labels = withLandmarkLabels([{ landmark_id: "landmark-4", label: "Main junction" }, { landmark_id: "unknown", label: "Unknown" }]);
+  assert.equal(labels.length, 6);
+  assert.equal(labels.find((landmark) => landmark.id === "landmark-4")?.name, "Main junction");
+  assert.equal(labels.find((landmark) => landmark.id === "landmark-4")?.shortName, "Main junction");
+  assert.deepEqual(labels.map(({ coordinates, mapsUrl }) => ({ coordinates, mapsUrl })), VENUE_LANDMARKS.map(({ coordinates, mapsUrl }) => ({ coordinates, mapsUrl })));
+  assert.equal(VENUE_LANDMARKS.find((landmark) => landmark.id === "landmark-4")?.name, "Landmark 4");
+});
 
 test("uses the destination pin from the organiser's link, not the Google camera centre", () => {
   assert.deepEqual(DREAMERS_HUB_COORDINATES, [3.83631, 7.370485]);

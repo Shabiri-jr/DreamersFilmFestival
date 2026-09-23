@@ -18,6 +18,7 @@ import { VenueExplorer } from "@/components/venue/venue-explorer";
 import { getActiveTicketTypes, getFestivalSettings } from "@/lib/festival/data";
 import { formatFestivalDate, formatFestivalTime } from "@/lib/format";
 import { getVenueCoordinates } from "@/lib/venue/config";
+import { getVenueLandmarks } from "@/lib/venue/data";
 
 export const metadata: Metadata = {
   title: "The Dreamers Film Festival",
@@ -56,9 +57,10 @@ export default async function Home({
     );
   }
 
-  const [settings, tickets] = await Promise.all([
+  const [settings, tickets, { landmarks }] = await Promise.all([
     getFestivalSettings(),
     getActiveTicketTypes(),
+    getVenueLandmarks(),
   ]);
 
   return (
@@ -208,7 +210,7 @@ export default async function Home({
             </dl>
           </div>
           <div className="mx-auto mt-12 max-w-[1400px]">
-            <VenueExplorer venue={settings.venue} destination={getVenueCoordinates()} />
+            <VenueExplorer venue={settings.venue} destination={getVenueCoordinates()} landmarks={landmarks} />
             <Link href="/venue" className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-extrabold text-[#eaa42c] hover:underline focus-visible:outline-2 focus-visible:outline-[#eaa42c]">Open the venue page <ArrowUpRight size={18} weight="bold" /></Link>
           </div>
         </section>

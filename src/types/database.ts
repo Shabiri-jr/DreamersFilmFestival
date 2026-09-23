@@ -84,6 +84,11 @@ type PaymentSubmissionRow = Timestamped & {
 export interface Database {
   public: {
     Tables: {
+      venue_landmark_labels: Table<
+        { landmark_id: string; label: string },
+        { landmark_id: string; label: string },
+        { label?: string }
+      >;
       admin_profiles: Table<
         {
           id: string;

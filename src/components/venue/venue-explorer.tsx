@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 
 import type { Coordinates } from "@/lib/venue/location";
+import type { VenueLandmark } from "@/lib/venue/landmarks";
 
 function MapLoading() {
   return (
@@ -22,7 +23,7 @@ const VenueMap = dynamic(() => import("@/components/venue/venue-map"), {
   loading: MapLoading,
 });
 
-export function VenueExplorer({ venue, destination }: { venue: string; destination: Coordinates | null }) {
+export function VenueExplorer({ venue, destination, landmarks }: { venue: string; destination: Coordinates | null; landmarks: VenueLandmark[] }) {
   const container = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -39,7 +40,7 @@ export function VenueExplorer({ venue, destination }: { venue: string; destinati
 
   return (
     <div ref={container} className="venue-explorer overflow-hidden rounded-[1.5rem] border border-[#fff7e7]/15">
-      {visible ? <VenueMap venue={venue} destination={destination} /> : <MapLoading />}
+      {visible ? <VenueMap venue={venue} destination={destination} landmarks={landmarks} /> : <MapLoading />}
     </div>
   );
 }

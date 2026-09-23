@@ -7,6 +7,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef, useState } from "react";
 
 import { useLiveLocation } from "@/components/venue/use-live-location";
+import type { VenueLandmark } from "@/lib/venue/landmarks";
 import { distanceMetres, formatDistance, googleMapsUrl, IBADAN_OVERVIEW, parseDrivingRoute, type Coordinates, type DrivingRoute } from "@/lib/venue/location";
 
 const EMPTY_ROUTE = { type: "FeatureCollection" as const, features: [] };
@@ -22,10 +23,17 @@ function markerElement(className: string, label: string) {
   return element;
 }
 
-export default function VenueMap({ venue, destination }: { venue: string; destination: Coordinates | null }) {
+function fitLandmarks(instance: maplibregl.Map, destination: Coordinates, landmarks: VenueLandmark[], duration: number) {
+  const bounds = new maplibregl.LngLatBounds(destination, destination);
+  landmarks.forEach((landmark) => bounds.extend(landmark.coordinates));
+  instance.fitBounds(bounds, { padding: { top: 100, bottom: 140, left: 36, right: 36 }, maxZoom: 16, duration });
+}
+
+export default function VenueMap({ venue, destination, landmarks }: { venue: string; destination: Coordinates | null; landmarks: VenueLandmark[] }) {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const userMarker = useRef<maplibregl.Marker | null>(null);
+  const landmarkPopups = useRef(new Map<string, maplibregl.Popup>());
   const follow = useRef(true);
   const [following, setFollowing] = useState(true);
   const [ready, setReady] = useState(false);
@@ -43,6 +51,7 @@ export default function VenueMap({ venue, destination }: { venue: string; destin
 
   useEffect(() => {
     if (!container.current) return;
+    const popups = landmarkPopups.current;
     let disposed = false;
     let instance: maplibregl.Map;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -80,9 +89,68 @@ export default function VenueMap({ venue, destination }: { venue: string; destin
       instance.addLayer({ id: "journey-outline", type: "line", source: "journey", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#fff7e7", "line-width": 10 } }, before);
       instance.addLayer({ id: "journey-route", type: "line", source: "journey", layout: { "line-join": "round", "line-cap": "round" }, paint: { "line-color": "#e84b16", "line-width": 6 } }, before);
       if (longitude !== undefined) {
-        new maplibregl.Marker({ element: markerElement("venue-destination", "The Dreamers Hub"), anchor: "bottom" })
+        const destinationElement = markerElement("venue-destination", "The Dreamers Hub");
+        const updateDestinationLabel = () => destinationElement.classList.toggle("venue-destination-overview", instance.getZoom() < 15);
+        updateDestinationLabel();
+        instance.on("zoomend", updateDestinationLabel);
+        new maplibregl.Marker({ element: destinationElement, anchor: "bottom" })
           .setLngLat(centre).addTo(instance);
       }
+      const markers: maplibregl.Marker[] = [];
+      for (const [index, landmark] of landmarks.entries()) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "venue-landmark";
+        button.setAttribute("aria-label", `View landmark: ${landmark.name}`);
+        button.setAttribute("aria-haspopup", "dialog");
+        const number = document.createElement("span");
+        number.className = "venue-landmark-number";
+        number.textContent = String(index + 1);
+        const label = document.createElement("span");
+        label.className = "venue-landmark-label";
+        label.textContent = landmark.shortName;
+        button.append(number, label);
+
+        const content = document.createElement("div");
+        const heading = document.createElement("h4");
+        heading.textContent = landmark.name;
+        const description = document.createElement("p");
+        description.textContent = "Nearby landmark for finding The Dreamers Hub.";
+        const link = document.createElement("a");
+        link.href = landmark.mapsUrl;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "View landmark in Google Maps";
+        content.append(heading, description, link);
+        const popup = new maplibregl.Popup({ className: "venue-landmark-popup", offset: 50, maxWidth: "260px" })
+          .setLngLat(landmark.coordinates).setDOMContent(content);
+        popup.on("open", () => {
+          const element = popup.getElement();
+          element.setAttribute("role", "dialog");
+          element.setAttribute("aria-label", landmark.name);
+          element.onkeydown = (event) => {
+            if (event.key === "Escape") {
+              event.stopPropagation();
+              popup.remove();
+              button.focus({ preventScroll: true });
+            }
+          };
+        });
+        popups.set(landmark.id, popup);
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          follow.current = false;
+          setFollowing(false);
+          popups.forEach((item) => item.remove());
+          popup.addTo(instance);
+        });
+        markers.push(new maplibregl.Marker({ element: button, anchor: "bottom" })
+          .setLngLat(landmark.coordinates).addTo(instance));
+      }
+      if (longitude !== undefined && landmarks.length > 0) {
+        fitLandmarks(instance, centre, landmarks, 0);
+      }
+      instance.once("remove", () => markers.forEach((marker) => marker.remove()));
       setPitched(instance.getPitch() > 10);
       setReady(true);
       setFailed(false);
@@ -107,10 +175,12 @@ export default function VenueMap({ venue, destination }: { venue: string; destin
       resize.disconnect();
       userMarker.current?.remove();
       userMarker.current = null;
+      popups.forEach((popup) => popup.remove());
+      popups.clear();
       instance.remove();
       map.current = null;
     };
-  }, [longitude, latitude, attempt]);
+  }, [longitude, latitude, landmarks, attempt]);
 
   useEffect(() => {
     positionRef.current = location.position;
@@ -193,13 +263,33 @@ export default function VenueMap({ venue, destination }: { venue: string; destin
   function showDestination() {
     follow.current = false;
     setFollowing(false);
+    landmarkPopups.current.forEach((popup) => popup.remove());
     map.current?.easeTo({ center: destination ?? IBADAN_OVERVIEW, zoom: destination ? 16 : 11, duration: 900 });
+  }
+
+  function showAllLandmarks() {
+    if (!map.current) return;
+    follow.current = false;
+    setFollowing(false);
+    landmarkPopups.current.forEach((popup) => popup.remove());
+    fitLandmarks(map.current, destination ?? IBADAN_OVERVIEW, landmarks, 800);
   }
 
   function followLocation() {
     follow.current = true;
     setFollowing(true);
     if (location.position) map.current?.easeTo({ center: location.position.coordinates, zoom: 16, duration: 800 });
+  }
+
+  function showLandmark(landmark: VenueLandmark) {
+    const instance = map.current;
+    if (!instance) return;
+    follow.current = false;
+    setFollowing(false);
+    landmarkPopups.current.forEach((popup) => popup.remove());
+    instance.easeTo({ center: landmark.coordinates, zoom: 16, duration: 800 });
+    landmarkPopups.current.get(landmark.id)?.addTo(instance);
+    container.current?.scrollIntoView({ block: "center", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   }
 
   const activeRoute = location.position && location.position.accuracy <= 100 ? route : null;
@@ -209,7 +299,7 @@ export default function VenueMap({ venue, destination }: { venue: string; destin
       <div className="relative isolate min-h-[28rem] bg-[#f3ead8] sm:min-h-[36rem]">
         <div ref={container} className="venue-map-canvas absolute inset-0" />
         <div className="pointer-events-none absolute top-4 left-4 max-w-[calc(100%-6rem)] rounded-full border border-[#17120f]/10 bg-[#fff7e7]/95 px-4 py-2 text-[0.65rem] font-extrabold tracking-[0.14em] uppercase shadow-sm">
-          {destination ? "Ibadan · Your festival destination" : "Ibadan · Area overview"}
+          {destination ? <><span aria-hidden="true" className="mr-2 inline-block size-2 rounded-full bg-[#e84b16]" />The Dreamers Hub · Ibadan</> : "Ibadan · Area overview"}
         </div>
         {!ready && !failed && (
           <div role="status" className="absolute inset-0 grid place-items-center bg-[#f3ead8]">
@@ -228,6 +318,7 @@ export default function VenueMap({ venue, destination }: { venue: string; destin
           <div className="absolute right-4 bottom-12 left-4 flex flex-wrap gap-2">
             <button type="button" className="venue-control" onClick={() => map.current?.jumpTo({ pitch: pitched ? 0 : 52, bearing: pitched ? 0 : -22 })}><Stack size={18} weight="bold" />{pitched ? "2D view" : "3D view"}</button>
             <button type="button" className="venue-control" onClick={showDestination}><MapPin size={18} weight="bold" />{destination ? "Venue" : "Ibadan"}</button>
+            <button type="button" className="venue-control" onClick={showAllLandmarks}>Landmarks</button>
             {location.position && <button type="button" className="venue-control" aria-pressed={following} onClick={followLocation}><Crosshair size={18} weight="bold" />Follow me</button>}
           </div>
         )}
@@ -237,6 +328,15 @@ export default function VenueMap({ venue, destination }: { venue: string; destin
         <p className="section-eyebrow">The destination</p>
         <h3 className="mt-3 font-[family-name:var(--font-display)] text-5xl leading-[0.9] font-extrabold uppercase">See you<br />at the Hub.</h3>
         <p className="mt-5 text-sm leading-7 text-[#17120f]/70">{venue}</p>
+
+        <div className="mt-5">
+          <h4 className="text-[0.65rem] font-extrabold tracking-[0.15em] text-[#17120f]/55 uppercase">Nearby landmarks</h4>
+          {landmarks.map((landmark, index) => (
+            <button key={landmark.id} type="button" aria-haspopup="dialog" onClick={() => showLandmark(landmark)} disabled={!ready || failed} className="mt-2 flex min-h-11 w-full items-center gap-3 rounded-lg text-left text-sm font-extrabold text-[#086544] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#086544] disabled:opacity-50">
+              <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-full bg-[#086544]/10 text-xs">{index + 1}</span><span className="min-w-0 wrap-anywhere">{landmark.shortName}</span>
+            </button>
+          ))}
+        </div>
 
         <div className="my-7 border-y border-[#17120f]/12 py-5">
           <p className="text-[0.65rem] font-extrabold tracking-[0.15em] text-[#17120f]/55 uppercase">{activeRoute ? "Your driving route" : "Find your way"}</p>

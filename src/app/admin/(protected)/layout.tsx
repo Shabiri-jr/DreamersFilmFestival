@@ -1,4 +1,4 @@
-import { ChartBar, IdentificationCard, Scan, SignOut, Ticket, UsersThree } from "@phosphor-icons/react/ssr";
+import { ChartBar, IdentificationCard, MapPin, Scan, SignOut, Ticket, UsersThree } from "@phosphor-icons/react/ssr";
 import Link from "next/link";
 
 import { logoutAdmin } from "@/lib/admin/actions";
@@ -31,6 +31,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
             {admin.role === "super_admin" && <Link href="/check-in" className="flex min-h-11 shrink-0 items-center gap-3 rounded-xl px-3 text-sm font-bold hover:bg-[#f3ead8] focus-visible:outline-2 focus-visible:outline-[#086544]"><Scan size={19} /> Gate scanner</Link>}
             {admin.role === "super_admin" && <Link href="/admin/check-ins" className="flex min-h-11 shrink-0 items-center gap-3 rounded-xl px-3 text-sm font-bold hover:bg-[#f3ead8] focus-visible:outline-2 focus-visible:outline-[#086544]"><ChartBar size={19} /> Check-ins</Link>}
             {admin.role === "super_admin" && <Link href="/admin/promoters" className="flex min-h-11 shrink-0 items-center gap-3 rounded-xl px-3 text-sm font-bold hover:bg-[#f3ead8] focus-visible:outline-2 focus-visible:outline-[#086544]"><UsersThree size={19} /> Promoters</Link>}
+            {admin.role === "super_admin" && <Link href="/admin/landmarks" className="flex min-h-11 shrink-0 items-center gap-3 rounded-xl px-3 text-sm font-bold hover:bg-[#f3ead8] focus-visible:outline-2 focus-visible:outline-[#086544]"><MapPin size={19} /> Map landmarks</Link>}
           </div>
         </nav>
         <main id="main-content" className="min-w-0 px-4 py-7 sm:px-6 lg:px-8 lg:py-9">{children}</main>
